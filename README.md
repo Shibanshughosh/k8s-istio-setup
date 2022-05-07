@@ -9,17 +9,19 @@ export PATH=$PWD/bin:$PATH
 
 #####Install Istio
 
-istioctl install --set profile=demo -y
-kubectl label namespace default istio-injection=enabled
-kubectl label namespace service-mesh-demo istio-injection=enabled # For any custom namespace 
+	istioctl install --set profile=demo -y
+	kubectl label namespace default istio-injection=enabled
+	kubectl label namespace service-mesh-demo istio-injection=enabled # For any custom namespace 
 
 ##Verify label is updated to add sidecars in the selected namespaces
-kubectl get ns --show-labels
+
+	kubectl get ns --show-labels
 
 	---------For already installed apps, we need to do a restart of the resource (Deployment) for the sidecar injection to happen
-  kubectl -n service-mesh-demo rollout restart deploy node-app
-  kubectl -n default rollout restart deploy devsecops
-  kubectl -n default rollout restart deploy node-app
+  
+  	kubectl -n service-mesh-demo rollout restart deploy node-app
+  	kubectl -n default rollout restart deploy devsecops
+  	kubectl -n default rollout restart deploy node-app
 
   ---------Understanding namespaces and DNS
   When you create a Service, it creates a corresponding DNS entry. This entry is of the form <service-name>.<namespace-name>.svc.cluster.local, which means that if 
@@ -29,16 +31,16 @@ kubectl get ns --show-labels
 
 #####Deploy Sample application
   
-kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
-kubectl get services
+	kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
+	kubectl get services
 
-kubectl exec "$(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')" -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+	kubectl exec "$(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')" -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
 
 
 #####Open application to outside traffic
 
-  kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
-  istioctl analyze
+	  kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
+	  istioctl analyze
   
 #####Determining the ingress IP and ports
 
@@ -51,15 +53,16 @@ service’s node port.
   
 #####Set the ingress IP and ports
 
-  export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-  export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
-  export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
+	  export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+	  export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+	  export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
 
 
 
 -----------Follow these instructions if your environment does not have an external load balancer and choose a node port instead. 
-      export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
-      export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].nodePort}')
+      
+	export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+      	export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].nodePort}')
 
 #####Set GATEWAY_URL: environment variable
 
